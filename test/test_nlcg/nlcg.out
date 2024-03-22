@@ -1,0 +1,54 @@
+nlcglib parameters
+        T : 315.775
+ smearing : Fermi-Dirac
+   maxiter: 300
+       tol: 1e-09
+     kappa: 0.3
+       tau: 0.1
+   restart: 10
+num electrons: 16
+tol = 1e-09
+Iteration      Free energy    	Residual       
+0              -164.6316751464461	-1.5924416117253e-08 -1.0000000000000e+00
+	 kT * S       : -0.0000604434798
+	 Fermi energy : 0.6412327858954
+	 KS energy    : -164.6316147029663
+line search t_trial = 2.000000e-01
+	 t_min = 3.648913e+00 q line prediction error: 2.06787831e-09 dE: 3.11212887e-08
+line search took: 1.41638548e+00 seconds
+steepest descent took: 9.37971400e-03 seconds
+1              -164.6316751775674	-6.7425066008407e-09 -1.0000000000000e+00
+	 kT * S       : -0.0000604546301
+	 Fermi energy : 0.6412337060508
+	 KS energy    : -164.6316147229373
+line search t_trial = 2.00000000e-01
+	 t_min = 1.48547815e+00 q line prediction error: -4.22886615e-10 dE: 4.58504701e-09
+line search took: 1.41320883e+00 seconds
+ CG gamma 3.361e-01
+conjugated descent took: 1.355e-02 seconds
+2              -164.6316751821525	-2.0748456467065e-09 -1.0000000000000e+00
+	 kT * S       : -0.0000604156598
+	 Fermi energy : 0.6412170165193
+	 KS energy    : -164.6316147664926
+line search t_trial = 2.000e-01
+	 t_min = 3.946e+00 q line prediction error: -1.14104637e-09 dE: 2.95267455e-09
+line search took: 1.41041862e+00 seconds
+ CG gamma 1.344e+00
+conjugated descent took: 1.377e-02 seconds
+3              -164.6316751851051	-2.2637340023282e-09 -1.0000000000000e+00
+	 kT * S       : -0.0000603978243
+	 Fermi energy : 0.6412144199888
+	 KS energy    : -164.6316147872809
+line search t_trial = 2.000e-01
+	 t_min = 1.388e+00 q line prediction error: 2.30215846e-10 dE: 1.80079951e-09
+line search took: 1.40466037e+00 seconds
+ CG gamma 2.669e-01
+conjugated descent took: 1.328e-02 seconds
+4              -164.6316751869059	-9.0427028599264e-10 -1.0000000000000e+00
+	 kT * S       : -0.0000603884274
+	 Fermi energy : 0.6412125750451
+	 KS energy    : -164.6316147984785
+kT * S   : -6.038842743242e-05
+F        : -164.6316751869
+KS-energy: -164.6316147985
+NLCG SUCCESS

@@ -1,0 +1,69 @@
+{
+    "control" : {
+        "processing_unit" : "cpu",
+        "verbosity" : 0
+    },
+
+    "parameters" : {
+        "electronic_structure_method" : "pseudopotential",
+
+        "num_fv_states" : 40,
+
+        "xc_functionals" : ["XC_LDA_X", "XC_LDA_C_PZ"],
+
+        "smearing_width" : 0.025,
+
+        "use_symmetry" : true,
+
+        "gk_cutoff" : 6.0,
+        "pw_cutoff" : 20.00,
+
+        "energy_tol" : 1e-8,
+        "density_tol" : 1e-8,
+
+        "ngridk" : [2,2,2]
+    },
+
+    "iterative_solver" : {
+        "type" : "davidson"
+    },
+
+    "unit_cell" : {
+
+        "lattice_vectors" : [ [1, 0, 0],
+                              [0, 1, 0],
+                              [0, 0, 1]
+                            ],
+        "lattice_vectors_scale" : 7.260327248,
+
+        "atom_types" : ["Sr", "V", "O"],
+
+        "atom_files" : {
+            "Sr" : "sr_lda_v1.uspp.F.UPF.json",
+            "V"  : "v_lda_v1.4.uspp.F.UPF.json",
+            "O"  : "o_lda_v1.2.uspp.F.UPF.json"
+        },
+
+        "atoms" : {
+            "Sr" : [
+                [0.52, 0.5, 0.5]
+            ],
+            "V" : [
+                [0, 0, 0, 0, 0, 4]
+            ],
+            "O" : [
+                [0.5, 0.0, 0.0],
+                [0.0, 0.48, 0.0],
+                [0.0, 0.0, 0.5]
+            ]
+        }
+    },
+
+    "mixer" : {
+        "beta" : 0.95,
+        "type" : "anderson",
+        "max_history" : 8,
+        "use_hartree" : true
+    }
+
+}
