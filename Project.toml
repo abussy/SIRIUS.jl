@@ -9,7 +9,7 @@ MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 SIRIUS_jll = "6b659922-2939-5935-a7a2-1bdd48c7820f"
 
 [compat]
-julia = "1"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

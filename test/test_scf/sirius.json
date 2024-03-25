@@ -1,66 +1,48 @@
 {
     "control" : {
         "processing_unit" : "cpu",
-        "verbosity" : 0
+        "verbosity" : 1
     },
-
     "parameters" : {
         "electronic_structure_method" : "pseudopotential",
-
-        "num_fv_states" : 40,
-
-        "xc_functionals" : ["XC_LDA_X", "XC_LDA_C_PZ"],
-
-        "smearing_width" : 0.025,
-
-        "use_symmetry" : true,
-
-        "gk_cutoff" : 6.0,
-        "pw_cutoff" : 20.00,
-
-        "energy_tol" : 1e-8,
+        "smearing_width" : 0.001,
+        "smearing": "fermi_dirac",
+        "xc_functionals": ["XC_GGA_X_PBE", "XC_GGA_C_PBE"],
+        "num_fv_states" : 10,
+        "num_mag_dims": 1,
+        "pw_cutoff" : 48.00,
+        "gk_cutoff":  12.00,
+        "use_symmetry": true,
+        "ngridk" : [4,4,4],
+        "shiftk" : [1,1,1],
         "density_tol" : 1e-8,
-
-        "ngridk" : [2,2,2]
+        "energy_tol" : 1e-8,
+        "num_dft_iter" : 100
     },
-
-    "iterative_solver" : {
-        "type" : "davidson"
-    },
-
+ 
     "unit_cell" : {
 
-        "lattice_vectors" : [ [1, 0, 0],
-                              [0, 1, 0],
-                              [0, 0, 1]
+        "lattice_vectors" : [ [-1, 1, 1],
+                              [1, -1, 1],
+                              [1, 1, -1]
                             ],
-        "lattice_vectors_scale" : 7.260327248,
+        "lattice_vectors_scale" : 2.708,
 
-        "atom_types" : ["Sr", "V", "O"],
+        "atom_types" : ["Fe"],
 
         "atom_files" : {
-            "Sr" : "sr_lda_v1.uspp.F.UPF.json",
-            "V"  : "v_lda_v1.4.uspp.F.UPF.json",
-            "O"  : "o_lda_v1.2.uspp.F.UPF.json"
+            "Fe" : "Fe.json"
         },
 
         "atoms" : {
-            "Sr" : [
-                [0.52, 0.5, 0.5]
-            ],
-            "V" : [
-                [0, 0, 0, 0, 0, 4]
-            ],
-            "O" : [
-                [0.5, 0.0, 0.0],
-                [0.0, 0.48, 0.0],
-                [0.0, 0.0, 0.5]
+            "Fe" : [
+                [0, 0, 0, 0, 0, 1]
             ]
         }
     },
 
     "mixer" : {
-        "beta" : 0.95,
+        "beta" : 0.9,
         "type" : "anderson",
         "max_history" : 8,
         "use_hartree" : true
