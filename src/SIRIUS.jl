@@ -60,6 +60,10 @@ mutable struct KpointSetHandler
    handler_ptr::Ref{Ptr{Cvoid}}
 end
 
+mutable struct HamiltonianHandler
+   handler_ptr::Ref{Ptr{Cvoid}}
+end
+
 ### Handler freeing function. Note: not added as finalizer as call order matters
 function free_context_handler(ctx::ContextHandler)
    error_code__ = Ref{Cint}(0)
@@ -82,6 +86,14 @@ function free_kpoint_set_handler(kps::KpointSetHandler)
    @ccall libpath.sirius_free_object_handler(kps.handler_ptr::Ref{Ptr{Cvoid}}, error_code__::Ref{Cint})::Cvoid
    if error_code__[] != 0
       error("Sirius.free_kpoint_set_handler failed with error code", error_code__[])
+   end
+end
+
+function free_hamiltonian_handler(H0::HamiltonianHandler)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_free_object_handler(H0.handler_ptr::Ref{Ptr{Cvoid}}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.free_hamiltonian_handler failed with error code", error_code__[])
    end
 end
 
@@ -316,6 +328,102 @@ function get_stress_tensor(gs::GroundStateHandler,  label::String)
       error("Sirius.get_stress_tensor failed with error code", error_code__[])
    end
    return stress__
+end
+
+### TESTING exchange of data with Julia/DFTK
+function set_rg_density(gs::GroundStateHandler, rho::Array{<:Real, 4}, size_x::Integer, 
+                        size_y::Integer, size_z::Integer, offset_z::Integer)
+   #actual input arguments
+   label__::String = "rho"
+   f_rg__ = Array{Cdouble, 4}(rho)
+   size_x__ = Ref{Cint}(size_x)
+   size_y__ = Ref{Cint}(size_y)
+   size_z__ = Ref{Cint}(size_z)
+   offset_z__ = Ref{Cint}(offset_z)
+
+   #dummy arguments
+   f_mt__ = Ptr{Cdouble}(C_NULL)
+   lmmax__ = Ptr{Cint}(C_NULL)
+   nrmtmax__ = Ptr{Cint}(C_NULL)
+   num_atoms__ = Ptr{Cint}(C_NULL)
+
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_set_periodic_function(gs.handler_ptr::Ptr{Cvoid}, label__::Cstring, f_mt__::Ref{Cdouble},
+                                               lmmax__::Ref{Cint}, nrmtmax__::Ref{Cint}, num_atoms__::Ref{Cint},
+                                               f_rg__::Ref{Cdouble}, size_x__::Ref{Cint}, size_y__::Ref{Cint},
+                                               size_z__::Ref{Cint}, offset_z__::Ref{Cint}, 
+                                               error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0                                                                            
+      error("Sirius.set_rg_density failed with error code", error_code__[])                       
+   end 
+end
+
+function get_rg_density(gs::GroundStateHandler, size_x::Integer, 
+                        size_y::Integer, size_z::Integer, offset_z::Integer)
+   #actual input arguments
+   label__::String = "rho"
+   f_rg__ = Array{Cdouble, 4}(undef, size_x, size_y, size_z, 1)
+   size_x__ = Ref{Cint}(size_x)
+   size_y__ = Ref{Cint}(size_y)
+   size_z__ = Ref{Cint}(size_z)
+   offset_z__ = Ref{Cint}(offset_z)
+
+   #dummy arguments
+   f_mt__ = Ptr{Cdouble}(C_NULL)
+   lmmax__ = Ptr{Cint}(C_NULL)
+   nrmtmax__ = Ptr{Cint}(C_NULL)
+   num_atoms__ = Ptr{Cint}(C_NULL)
+
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_periodic_function(gs.handler_ptr::Ptr{Cvoid}, label__::Cstring, f_mt__::Ref{Cdouble},
+                                               lmmax__::Ref{Cint}, nrmtmax__::Ref{Cint}, num_atoms__::Ref{Cint},
+                                               f_rg__::Ref{Cdouble}, size_x__::Ref{Cint}, size_y__::Ref{Cint},
+                                               size_z__::Ref{Cint}, offset_z__::Ref{Cint}, 
+                                               error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0                                                                            
+      error("Sirius.get_rg_density failed with error code", error_code__[])                       
+   end 
+   return f_rg__
+end
+
+function get_fft_local_z_offset(ctx::ContextHandler)
+   local_z_offset__ = Ref{Cint}(0)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_fft_local_z_offset(ctx.handler_ptr::Ptr{Cvoid}, local_z_offset__::Ref{Cint},
+                                                error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.get_fft_local_z_offset failed with error code", error_code__[])
+   end
+   return local_z_offset__[]
+end
+
+function create_hamiltonian(gs::GroundStateHandler)
+   H0 = HamiltonianHandler(C_NULL)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_create_hamiltonian(gs.handler_ptr::Ptr{Cvoid}, H0.handler_ptr::Ptr{Cvoid},
+                                            error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.create_hamiltonian failed with error code", error_code__[])
+   end
+   return H0
+end
+
+function diagonalize_hamiltonian(gs::GroundStateHandler, H0::HamiltonianHandler, 
+                                 iter_solver_tol::Real, max_steps::Integer)
+   iter_solver_tol__ = Ref{Cdouble}(iter_solver_tol)
+   max_steps__ = Ref{Cint}(max_steps)
+
+   converged__ = Ref{Cuchar}(false)
+   niter__ = Ref{Cint}(-1)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_diagonalize_hamiltonian(gs.handler_ptr::Ptr{Cvoid}, H0.handler_ptr::Ptr{Cvoid},
+                                                 iter_solver_tol__::Ref{Cdouble}, max_steps__::Ref{Cint},
+                                                 converged__::Ref{Cuchar}, niter__::Ref{Cint},
+                                                 error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.diagonalize_hamiltonian failed with error code", error_code__[])
+   end
+   return Bool(converged__[]), niter__[]
 end
 
 end
