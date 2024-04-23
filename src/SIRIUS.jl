@@ -426,4 +426,72 @@ function diagonalize_hamiltonian(gs::GroundStateHandler, H0::HamiltonianHandler,
    return Bool(converged__[]), niter__[]
 end
 
+function set_num_bands(ctx::ContextHandler, num_bands::Integer)
+   num_bands__ = Ref{Cint}(num_bands)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_set_num_bands(ctx.handler_ptr::Ptr{Cvoid}, num_bands__::Ref{Cint},
+                                       error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.set_num_bands failed with error code", error_code__[])
+   end
+end
+
+function get_band_energies(ks::KpointSetHandler, ik::Integer, ispin::Integer, num_bands::Integer)
+   ik__ = Ref{Cint}(ik)
+   ispin__ = Ref{Cint}(ispin)
+   energies = Vector{Cdouble}(undef, num_bands)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_band_energies(ks.handler_ptr::Ptr{Cvoid}, ik__::Ref{Cint}, ispin__::Ref{Cint},
+                                           energies::Ref{Cdouble}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.get_band_energies failed with error code", error_code__[])
+   end
+   return energies
+end
+
+function set_band_occupancies(ks::KpointSetHandler, ik::Integer, ispin::Integer, occupancies::Vector{Float64})
+   ik__ = Ref{Cint}(ik)                                                                              
+   ispin__ = Ref{Cint}(ispin)                                                                        
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_set_band_occupancies(ks.handler_ptr::Ptr{Cvoid}, ik__::Ref{Cint}, ispin__::Ref{Cint},
+                                              occupancies::Ptr{Cdouble}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.set_band_occupancies failed with error code", error_code__[])
+   end
+end
+
+function get_band_occupancies(ks::KpointSetHandler, ik::Integer, ispin::Integer, num_bands::Integer)
+   ik__ = Ref{Cint}(ik)                                                                              
+   ispin__ = Ref{Cint}(ispin)                                                                        
+   occupancies = Vector{Cdouble}(undef, num_bands)                                                      
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_band_occupancies(ks.handler_ptr::Ptr{Cvoid}, ik__::Ref{Cint}, ispin__::Ref{Cint},
+                                              occupancies::Ref{Cdouble}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.get_band_occupancies failed with error code", error_code__[])
+   end
+   return occupancies
+end
+
+function generate_density(gs::GroundStateHandler)
+   paw_only__ = Ref{Cuchar}(false)
+   transform_to_rg__ = Ref{Cuchar}(true)
+   add_core__ = Ref{Cuchar}(true)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_generate_density(gs.handler_ptr::Ptr{Cvoid}, add_core__::Ref{Cuchar}, 
+                                          transform_to_rg__::Ref{Cuchar}, paw_only__::Ref{Cuchar},
+                                          error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.generate_density failed with error code", error_code__[])
+   end
+end
+
+function find_band_occupancies(ks::KpointSetHandler)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_find_band_occupancies(ks.handler_ptr::Ptr{Cvoid}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.find_band_occupancies failed with error code", error_code__[])
+   end
+end
+
 end
