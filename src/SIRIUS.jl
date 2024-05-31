@@ -486,12 +486,68 @@ function generate_density(gs::GroundStateHandler)
    end
 end
 
+function generate_initial_density(gs::GroundStateHandler)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_generate_initial_density(gs.handler_ptr::Ptr{Cvoid},
+                                                  error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.generate_initial_density failed with error code", error_code__[])
+   end
+end
+
 function find_band_occupancies(ks::KpointSetHandler)
    error_code__ = Ref{Cint}(0)
    @ccall libpath.sirius_find_band_occupancies(ks.handler_ptr::Ptr{Cvoid}, error_code__::Ref{Cint})::Cvoid
    if error_code__[] != 0
       error("Sirius.find_band_occupancies failed with error code", error_code__[])
    end
+end
+
+function fft_transform(gs::GroundStateHandler, label::String, direction::Integer)
+   direction__ = Ref{Cint}(direction)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_fft_transform(gs.handler_ptr::Ptr{Cvoid}, label::Cstring, direction__::Ref{Cint},
+                                       error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.fft_transform failed with error code", error_code__[])
+   end
+end
+
+function get_psi(ks::KpointSetHandler, ik::Integer, ispin::Integer, ngpts::Integer, nelec::Integer)
+   psi__ = Vector{ComplexF64}(undef, ngpts*nelec)
+   ik__ = Ref{Cint}(ik)
+   ispin__ = Ref{Cint}(ispin)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_psi(ks.handler_ptr::Ptr{Cvoid}, ik__::Ref{Cint}, ispin__::Ref{Cint},
+                                 psi__::Ref{ComplexF64}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.get_psi failed with error code", error_code__[])
+   end
+
+   #TODO: there might be a more elegant way of doing that
+   psi = Matrix{ComplexF64}(undef, ngpts, nelec)
+   for i = 1:ngpts
+      for el = 1:nelec
+         psi[i, el] = psi__[(i-1)*nelec+el]
+      end
+   end
+   return psi
+end
+
+function get_gkvec(ks::KpointSetHandler, ik::Integer, ngpts::Integer)
+   gkvec__ = Vector{Cdouble}(undef, 3*ngpts)
+   ik__ = Ref{Cint}(ik)
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_get_gkvec(ks.handler_ptr::Ptr{Cvoid}, ik__::Ref{Cint},
+                                   gkvec__::Ref{Cdouble}, error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.get_gkvec failed with error code", error_code__[])
+   end
+   gkvec = []
+   for i = 0:ngpts-1
+      push!(gkvec, [gkvec__[3*i+1], gkvec__[3*i+2], gkvec__[3*i+3]])
+   end
+   return gkvec
 end
 
 end
