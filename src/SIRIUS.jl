@@ -200,13 +200,14 @@ function create_kset_from_grid(ctx::ContextHandler; k_grid::Vector{Int32}, k_shi
    return kps
 end
 
-function create_kset(ctx::ContextHandler; num_kp::Integer, k_coords::AbstractVector, k_weights::Vector{Float64})
+function create_kset(ctx::ContextHandler; num_kp::Integer, k_coords::AbstractVector, k_weights::Vector{Float64}, 
+                     init_kset=true)
    num_kpoints__ = Ref{Cint}(num_kp)
    kpoints__ = Vector{Cdouble}(undef, 3*num_kp)
    for (ikp, k_coord) in enumerate(k_coords)
       kpoints__[3*(ikp-1)+1:3*ikp] = k_coord[:]
    end
-   init_kset__::Ref{Cuchar} = true
+   init_kset__::Ref{Cuchar} = init_kset
    kps = KpointSetHandler(C_NULL)
    error_code__ = Ref{Cint}(0)
    @ccall libpath.sirius_create_kset(ctx.handler_ptr::Ptr{Cvoid}, num_kpoints__::Ref{Cint}, kpoints__::Ptr{Cdouble},
@@ -216,6 +217,15 @@ function create_kset(ctx::ContextHandler; num_kp::Integer, k_coords::AbstractVec
       error("Sirius.create_kset failed with error code", error_code__[])
    end
    return kps
+end
+
+function initialize_kset(kps::KpointSetHandler, count::Vector{Int32})
+   error_code__ = Ref{Cint}(0)
+   @ccall libpath.sirius_initialize_kset(kps.handler_ptr::Ptr{Cvoid}, count::Ptr{Cint}, 
+                                         error_code__::Ref{Cint})::Cvoid
+   if error_code__[] != 0
+      error("Sirius.initialize_kset failed with error code", error_code__[])
+   end
 end
 
 ### Functions related to the SIRIUS ground state

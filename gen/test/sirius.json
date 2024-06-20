@@ -1,0 +1,51 @@
+{
+    "control" : {
+        "processing_unit" : "cpu",
+        "verbosity" : 1
+    },
+    "parameters" : {
+        "electronic_structure_method" : "pseudopotential",
+        "smearing_width" : 0.001,
+        "smearing": "fermi_dirac",
+        "xc_functionals": ["XC_GGA_X_PBE", "XC_GGA_C_PBE"],
+        "num_fv_states" : 10,
+        "num_mag_dims": 1,
+        "pw_cutoff" : 24.00,
+        "gk_cutoff":  6.00,
+        "use_symmetry": true,
+        "ngridk" : [2,2,2],
+        "shiftk" : [1,1,1],
+        "density_tol" : 1e-6,
+        "energy_tol" : 1e-6,
+        "num_dft_iter" : 100
+    },
+ 
+    "unit_cell" : {
+
+        "lattice_vectors" : [ [-1, 1, 1],
+                              [1, -1, 1],
+                              [1, 1, -1]
+                            ],
+        "lattice_vectors_scale" : 2.708,
+
+        "atom_types" : ["Fe"],
+
+        "atom_files" : {
+            "Fe" : "Fe.json"
+        },
+
+        "atoms" : {
+            "Fe" : [
+                [0, 0, 0, 0, 0, 1]
+            ]
+        }
+    },
+
+    "mixer" : {
+        "beta" : 0.9,
+        "type" : "anderson",
+        "max_history" : 8,
+        "use_hartree" : true
+    }
+
+}

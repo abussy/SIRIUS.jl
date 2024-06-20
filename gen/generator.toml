@@ -1,0 +1,7 @@
+[general]
+library_name = "libsirius"
+output_file_path = "./LibSirius.jl"
+module_name = "LibSirius"
+jll_pkg_name = "SIRIUS_jll"
+print_using_CEnum = false
+extract_c_comment_style = "raw"
