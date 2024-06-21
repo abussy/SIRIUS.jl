@@ -1,8 +1,25 @@
-### SOME DOCS
+#!/usr/bin/env python
+
+### This python script parses the raw julia wrappers around the SIRIUS library, and spits out
+### formatted Julia wrappers that are easier to use
+### This deals with the Fortran style of the SIRIUS API, in which most variables are passed as pointers:
+### scalar input pointers are initialized as Ref{Ctype}(input), while arrays are directly fed to the C code
+### The script also adds error handling for the API calls
+###
+### The script expects 3 files to exist:
+### 1) LibSirius.jl: the raw julia wrappers generated from the C headers by Clang.jl
+### 2) functions_to_parse.txt: the list of functions of interest to be parsed by this script.
+###                            The SIRIUS API is full of QE specific routines not needed here.
+###                            Moreover, some functions/structs are wrapped by hand, as we add
+###                            additional information on the julia side (e.g. handlers)
+### 3) module_skeleton.jl: the skeleton code for the SIRIUS.jl module, which includes the hand
+###                        written wrappers for the handlers and a place holder for the code generated
+###                        by this script
 
 import re
 import sys
 
+### Collection of functions to check the properties of a given argument based on the API documentation
 def is_array(argattr):
     if "dimension" in argattr:
         return True
@@ -53,6 +70,7 @@ def get_type(argtype):
         if ftype in argtype:
             return types_lookup[ftype]
 
+### Uses regex to extract the code block of a given function in a file
 def get_function_by_name(fname, content):
 
     pattern = r'"""\n\s*{}\(.*?end\b'.format(fname)
@@ -63,6 +81,7 @@ def get_function_by_name(fname, content):
     
     return matches[0].strip()
 
+### Uses regex to extract the argument documentation from a function code block
 def get_function_arguments(fstring):
     arguments = {}
 
@@ -83,7 +102,8 @@ def get_function_arguments(fstring):
 
     return arguments
 
-def get_function_call(fname, args, prefix):
+### Generates a function call based on a name and argument properties
+def gen_function_call(fname, args, prefix):
 
     call = "\n"+prefix+"error_code__ = Ref{Cint}(0)\n"
 
@@ -106,7 +126,8 @@ def get_function_call(fname, args, prefix):
 
     return call
 
-def get_function_output(args, prefix):
+### Generates the return statement of a function based on the argument documentation, for scalar variables
+def gen_function_output(args, prefix):
 
     out = ""
 
@@ -119,7 +140,9 @@ def get_function_output(args, prefix):
     else:
         return ""
 
-def get_function_signature(fname, args):
+### Generates a function signature based on a function name and argument documentation
+### Pass Fortran optional arguments as keword arguments defaulting to nothing
+def gen_function_signature(fname, args):
 
     sign = "function {}(".format(fname.replace("sirius_", ""))
 
@@ -155,7 +178,8 @@ def get_function_signature(fname, args):
 
     return sign+")\n\n"
 
-
+# Prepares input scalar arguments for API call: initializes Ref{Ctype}(input_arg) and deals
+# with Fortran optional arguments by passing C_NULL pointers by default
 def prep_input_arg(argname, argspecs, prefix):
 
     arg_str = ""
@@ -185,6 +209,7 @@ def prep_input_arg(argname, argspecs, prefix):
 
     return arg_str
 
+# Prepares output scalar arguments for API call: create a Ref{Ctype} to be converted later
 def prep_output_arg(argname, argspecs, prefix):
 
     arg_str = ""
@@ -199,12 +224,13 @@ def prep_output_arg(argname, argspecs, prefix):
 
     return arg_str
 
+# Creates a Julia code block for the given function and arguments
 def parse_to_julia(fname, args):
 
     idt = "   "
 
     # function signature
-    func = get_function_signature(fname, args)
+    func = gen_function_signature(fname, args)
     
 
     # analysis of arguments
@@ -217,33 +243,41 @@ def parse_to_julia(fname, args):
         func += prep_output_arg(argname, argspecs, idt)
 
     # function call and error handling
-    func += get_function_call(fname, args, idt)
+    func += gen_function_call(fname, args, idt)
 
     # function output (simple types, no alloc)
-    func += get_function_output(args, idt)
+    func += gen_function_output(args, idt)
 
     func += "end\n\n"
 
     return func
 
-with open("functions_to_parse.txt", "r") as myfile:
-    tmp = myfile.read()
-    functions_to_parse = tmp.splitlines()
+def main():
+    ### Parsing all required functions
+    print("Generating second layer of wrappers with Python...")
+    
+    with open("functions_to_parse.txt", "r") as myfile:
+        tmp = myfile.read()
+        functions_to_parse = tmp.splitlines()
+    
+    with open("../../src/LibSirius.jl", "r") as myfile:
+        content = myfile.read()
+    
+    formatted_api = ""
+    for fname in functions_to_parse:
+        body = get_function_by_name(fname, content)
+        args = get_function_arguments(body)
+    
+        parsed_function = parse_to_julia(fname, args)
+        formatted_api += parsed_function
+    
+    with open("module_skeleton.jl", "r") as myfile:
+        skeleton = myfile.read()
+    
+    with open("../../src/SIRIUS.jl", "w") as myfile:
+        myfile.write(skeleton.replace("__insert_generated_code_here__", formatted_api))
 
-with open("LibSirius.jl", "r") as myfile:
-    content = myfile.read()
+    print("Done!")
 
-formatted_api = ""
-for fname in functions_to_parse:
-    body = get_function_by_name(fname, content)
-    args = get_function_arguments(body)
-
-    parsed_function = parse_to_julia(fname, args)
-    formatted_api += parsed_function
-
-with open("module_skeleton.jl", "r") as myfile:
-    skeleton = myfile.read()
-
-with open("SIRIU.jl", "w") as myfile:
-    myfile.write(skeleton.replace("__insert_generated_code_here__", formatted_api))
-
+if __name__ == "__main__":
+    main()

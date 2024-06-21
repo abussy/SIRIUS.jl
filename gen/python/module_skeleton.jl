@@ -1,10 +1,10 @@
-module SIRIU
+module SIRIUS
 
 using MPI
 using SIRIUS_jll
 
 export LibSirius
-include("../LibSirius.jl")
+include("LibSirius.jl")
 
 ### Hand written wrapper around the SIRIUS handlers (C void pointers)
 mutable struct ContextHandler
@@ -60,7 +60,7 @@ end
 comm2f(comm::MPI.Comm) = ccall((:MPI_Comm_c2f, MPI.libmpi), Cint, (MPI.MPI_Comm,), comm)
 
 ### Hard coded handler creation
-function create_context_from_json(comm::MPI.Comm, fname::AbstractString)
+function create_context_from_json(comm::MPI.Comm, fname)
    ctx = ContextHandler(C_NULL)
    fcomm__::Int32 = comm2f(comm)
    error_code__ = Ref{Cint}(0)
@@ -71,8 +71,7 @@ function create_context_from_json(comm::MPI.Comm, fname::AbstractString)
    return ctx
 end
 
-function create_kset_from_grid(ctx::ContextHandler; k_grid::Vector{Int32}, k_shift::Vector{Int32},
-                               use_symmetry::Bool)
+function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetry)
    kps = KpointSetHandler(C_NULL)
    error_code__ = Ref{Cint}(0)
    use_symmetry__::Ref{Bool} = use_symmetry

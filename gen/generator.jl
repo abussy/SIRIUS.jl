@@ -1,14 +1,14 @@
 using Clang.Generators
 using SIRIUS_jll
+using PyCall
 
+### Automatically generate the Julia wrappers for SIRIUS in LibSirius.jl
 cd(@__DIR__)
 
-#include_dir = normpath(SIRIUS_jll.artifact_dir, "include/sirius/src/api")
-include_dir = "./"
+include_dir = normpath(SIRIUS_jll.artifact_dir, "include/sirius/src/api")
 
 # wrapper generator options
 options = load_options(joinpath(@__DIR__, "generator.toml"))
-@show options
 
 # add compiler flags
 args = get_default_args()
@@ -23,3 +23,7 @@ ctx = create_context(headers, args, options)
 
 # run generator
 build!(ctx)
+
+### Second layer of wrapping for ease of use
+cd("./python")
+@pyinclude("generate_module.py")
