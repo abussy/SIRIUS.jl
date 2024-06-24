@@ -9,3 +9,17 @@ sirius_get_num_atoms
 sirius_get_energy
 sirius_get_forces
 sirius_get_stress_tensor
+sirius_initialize_kset
+sirius_set_periodic_function
+sirius_get_periodic_function
+sirius_fft_transform
+sirius_diagonalize_hamiltonian
+sirius_get_band_energies
+sirius_get_psi
+sirius_set_band_occupancies
+sirius_get_band_occupancies
+sirius_generate_density
+sirius_find_band_occupancies
+sirius_set_num_bands
+sirius_generate_initial_density
+sirius_get_gkvec

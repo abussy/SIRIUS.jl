@@ -667,6 +667,65 @@ function sirius_set_periodic_function_ptr(handler__, label__, f_mt__, lmmax__, n
 end
 
 """
+    sirius_set_periodic_function(gs_handler__, label__, f_mt__, lmmax__, nrmtmax__, num_atoms__, f_rg__, size_x__, size_y__, size_z__, offset_z__, error_code__)
+
+sirius_set_periodic_function:
+doc: Set values of the periodic function.
+arguments:
+gs_handler:
+type: gs_handler
+attr: in, required
+doc: Handler of the DFT ground state object.
+label:
+type: string
+attr: in, required
+doc: Label of the function.
+f_mt:
+type: double
+attr: in, optional, dimension(:,:,:)
+doc: Pointer to the muffin-tin part of the function.
+lmmax:
+type: int
+attr: in, optional
+doc: Number of lm components.
+nrmtmax:
+type: int
+attr: in, optional
+doc: Maximum number of muffin-tin points.
+num_atoms:
+type: int
+attr: in, optional
+doc: Total number of atoms.
+f_rg:
+type: double
+attr: in, optional, dimension(:)
+doc: Pointer to the regular-grid part of the function.
+size_x:
+type: int
+attr: in, optional
+doc: Size of X-dimension of FFT grid.
+size_y:
+type: int
+attr: in, optional
+doc: Size of Y-dimension of FFT grid.
+size_z:
+type: int
+attr: in, optional
+doc: Local or global size of Z-dimension of FFT grid depending on offset_z
+offset_z:
+type: int
+attr: in, optional
+doc: Offset in the Z-dimension of FFT grid for this MPI rank.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_periodic_function(gs_handler__, label__, f_mt__, lmmax__, nrmtmax__, num_atoms__, f_rg__, size_x__, size_y__, size_z__, offset_z__, error_code__)
+    ccall((:sirius_set_periodic_function, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), gs_handler__, label__, f_mt__, lmmax__, nrmtmax__, num_atoms__, f_rg__, size_x__, size_y__, size_z__, offset_z__, error_code__)
+end
+
+"""
     sirius_get_periodic_function(gs_handler__, label__, f_mt__, lmmax__, nrmtmax__, num_atoms__, f_rg__, size_x__, size_y__, size_z__, offset_z__, error_code__)
 
 sirius_get_periodic_function:
@@ -1218,6 +1277,37 @@ doc: Error code.
 """
 function sirius_set_atom_type_paw(handler__, label__, core_energy__, occupations__, num_occ__, error_code__)
     ccall((:sirius_set_atom_type_paw, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), handler__, label__, core_energy__, occupations__, num_occ__, error_code__)
+end
+
+"""
+    sirius_add_atom(handler__, label__, position__, vector_field__, error_code__)
+
+sirius_add_atom:
+doc: Add atom to the unit cell.
+arguments:
+handler:
+type: ctx_handler
+attr: in, required
+doc: Simulation context handler.
+label:
+type: string
+attr: in, required
+doc: Atom type label.
+position:
+type: double
+attr: in, required, dimension(3)
+doc: Atom position in lattice coordinates.
+vector_field:
+type: double
+attr: in, optional, dimension(3)
+doc: Starting magnetization.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_add_atom(handler__, label__, position__, vector_field__, error_code__)
+    ccall((:sirius_add_atom, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}), handler__, label__, position__, vector_field__, error_code__)
 end
 
 """
@@ -2528,6 +2618,45 @@ function sirius_option_get_info(section__, elem__, key_name__, key_name_len__, t
 end
 
 """
+    sirius_option_get(section__, name__, type__, data_ptr__, max_length__, enum_idx__, error_code__)
+
+sirius_option_get:
+doc: Return the default value of the option as defined in the JSON schema.
+arguments:
+section:
+type: string
+attr: in, required
+doc: Name of the section of interest.
+name:
+type: string
+attr: in, required
+doc: Name of the element
+type:
+type: int
+attr: in, required
+doc: Type of the option (real, integer, boolean)
+data_ptr:
+type: void*
+attr: in, required, value
+doc: Output buffer for the default value or list of values.
+max_length:
+type: int
+attr: in, optional
+doc: Maximum length of the buffer containing the default values.
+enum_idx:
+type: int
+attr: in, optional
+doc: Index of the element in case of the enum type.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_option_get(section__, name__, type__, data_ptr__, max_length__, enum_idx__, error_code__)
+    ccall((:sirius_option_get, libsirius), Cvoid, (Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), section__, name__, type__, data_ptr__, max_length__, enum_idx__, error_code__)
+end
+
+"""
     sirius_option_set(handler__, section__, name__, type__, data_ptr__, max_length__, append__, error_code__)
 
 sirius_option_set:
@@ -3112,7 +3241,7 @@ function sirius_create_H0(gs_handler__, error_code__)
 end
 
 """
-    sirius_linear_solver(gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ__, tol__, niter__, error_code__)
+    sirius_linear_solver(gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ_k__, nbnd_occ_kq__, tol__, niter__, error_code__)
 
 sirius_linear_solver:
 doc: Interface to linear solver.
@@ -3165,10 +3294,14 @@ spin:
 type: int
 attr: in, required
 doc: Current spin channel.
-nbnd_occ:
+nbnd_occ_k:
 type: int
 attr: in, required
-doc: Number of occupied bands.
+doc: Number of occupied bands at k.
+nbnd_occ_kq:
+type: int
+attr: in, required
+doc: Number of occupied bands at k+q.
 tol:
 type: double
 attr: in, optional
@@ -3182,8 +3315,8 @@ type: int
 attr: out, optional
 doc: Error code
 """
-function sirius_linear_solver(gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ__, tol__, niter__, error_code__)
-    ccall((:sirius_linear_solver, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{ComplexF32}, Ptr{Cdouble}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ__, tol__, niter__, error_code__)
+function sirius_linear_solver(gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ_k__, nbnd_occ_kq__, tol__, niter__, error_code__)
+    ccall((:sirius_linear_solver, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{ComplexF32}, Ptr{Cdouble}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), gs_handler__, vkq__, num_gvec_kq_loc__, gvec_kq_loc__, dpsi__, psi__, eigvals__, dvpsi__, ld__, num_spin_comp__, alpha_pv__, spin__, nbnd_occ_k__, nbnd_occ_kq__, tol__, niter__, error_code__)
 end
 
 """
@@ -3343,6 +3476,100 @@ doc: Error code.
 """
 function sirius_set_density_matrix(gs_handler__, ia__, dm__, ld__, error_code__)
     ccall((:sirius_set_density_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), gs_handler__, ia__, dm__, ld__, error_code__)
+end
+
+"""
+    sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+
+sirius_set_local_occupation_matrix:
+doc: Set local occupation matrix of LDA+U+V method.
+arguments:
+handler:
+type: gs_handler
+attr: in, required
+doc: Ground-state handler.
+ia:
+type: int
+attr: in, required
+doc: Index of atom.
+n:
+type: int
+attr: in, required
+doc: Principal quantum number.
+l:
+type: int
+attr: in, required
+doc: Orbital quantum number.
+spin:
+type: int
+attr: in, required
+doc: Spin index.
+occ_mtrx:
+type: complex
+attr: in, required, dimension(ld, ld)
+doc: Local occupation matrix.
+ld:
+type: int
+attr: in, required
+doc: Leading dimension of the occupation matrix.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+    ccall((:sirius_set_local_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+end
+
+"""
+    sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+
+sirius_set_nonlocal_occupation_matrix:
+doc: Set nonlocal part of LDA+U+V occupation matrix.
+arguments:
+handler:
+type: gs_handler
+attr: in, required
+doc: Ground-state handler.
+atom_pair:
+type: int
+attr: in, required, dimension(2)
+doc: Index of two atoms in the non-local V correction.
+n:
+type: int
+attr: in, required, dimension(2)
+doc: Pair of principal quantum numbers.
+l:
+type: int
+attr: in, required, dimension(2)
+doc: Pair of orbital quantum numbers.
+spin:
+type: int
+attr: in, required
+doc: Spin index.
+T:
+type: int
+attr: in, required, dimension(3)
+doc: Translation vector that connects two atoms.
+occ_mtrx:
+type: complex
+attr: in, required, dimension(ld1, ld2)
+doc: Nonlocal occupation matrix.
+ld1:
+type: int
+attr: in, required
+doc: Leading dimension of the occupation matrix.
+ld2:
+type: int
+attr: in, required
+doc: Second dimension of the occupation matrix.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+    ccall((:sirius_set_nonlocal_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
 end
 
 """
@@ -3685,6 +3912,33 @@ doc: Error code.
 """
 function sirius_get_psi(ks_handler__, ik__, ispin__, psi__, error_code__)
     ccall((:sirius_get_psi, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}), ks_handler__, ik__, ispin__, psi__, error_code__)
+end
+
+"""
+    sirius_get_gkvec(ks_handler__, ik__, gvec__, error_code__)
+
+sirius_get_gkvec:
+doc: Gets the G+k integer coordinates for a given k-point.
+arguments:
+ks_handler:
+type: ks_handler
+attr: in, required
+doc: Handler for the k-point set.
+ik:
+type: int
+attr: in, required
+doc: Index of the k-point.
+gvec:
+type: double
+attr: in, required, dimension(:)
+doc: Pointer to the G+k vector coordinates.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_get_gkvec(ks_handler__, ik__, gvec__, error_code__)
+    ccall((:sirius_get_gkvec, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}), ks_handler__, ik__, gvec__, error_code__)
 end
 
 end # module

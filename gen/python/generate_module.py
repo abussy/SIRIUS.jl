@@ -281,3 +281,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+### TODO: initialize optional array arguments to C_NULL, not nothing

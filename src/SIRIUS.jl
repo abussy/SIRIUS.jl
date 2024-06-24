@@ -83,6 +83,24 @@ function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetr
    return kps
 end
 
+function create_kset(ctx::ContextHandler; num_kp, k_coords, k_weights, init_kset=true)
+   kps = KpointSetHandler(C_NULL)
+   num_kpoints__ = Ref{Cint}(num_kp)
+   #TODO: maybe we can do that automatically with arrays, to be tested
+   kpoints__ = Vector{Cdouble}(undef, 3*num_kp)
+   for (ikp, k_coord) in enumerate(k_coords)
+      kpoints__[3*(ikp-1)+1:3*ikp] = k_coord[:]
+   end
+   init_kset__::Ref{Bool} = init_kset
+   error_code__ = Ref{Cint}(0)      
+   LibSirius.sirius_create_kset(ctx.handler_ptr, num_kpoints__, kpoints__, k_weights, init_kset__, 
+                                kps.handler_ptr, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.create_kset failed with error code", error_code__[])
+   end
+   return kps
+end
+
 function create_ground_state(kps::KpointSetHandler)
    gs = GroundStateHandler(C_NULL)
    error_code__ = Ref{Cint}(0)
@@ -91,6 +109,16 @@ function create_ground_state(kps::KpointSetHandler)
       error("SIRIUS.create_ground_state failed with error code", error_code__[])
    end
    return gs
+end
+
+function create_hamiltonian(gs::GroundStateHandler)
+   H0 = HamiltonianHandler(C_NULL)
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_create_hamiltonian(gs.handler_ptr, H0.handler_ptr, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.create_hamiltonian failed with error code", error_code__[])
+   end
+   return H0
 end
 
 ### Generated wrapper code around LibSirius
@@ -316,6 +344,320 @@ function get_stress_tensor!(gs_handler, label, stress_tensor)
    LibSirius.sirius_get_stress_tensor(gs_handler.handler_ptr, label, stress_tensor, error_code__)
    if error_code__[] != 0
       error("SIRIUS.get_stress_tensor failed with error code", error_code__[])
+   end
+
+end
+
+function initialize_kset(ks_handler; count=nothing)
+
+   #input arguments (non-array)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_initialize_kset(ks_handler.handler_ptr, count, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.initialize_kset failed with error code", error_code__[])
+   end
+
+end
+
+function set_periodic_function(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=nothing, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
+
+   #input arguments (non-array)
+   if isnothing(lmmax)
+      lmmax__ = Ptr{Cint}(C_NULL)
+   else
+      lmmax__ = Ref{Cint}(lmmax)
+   end
+
+   if isnothing(nrmtmax)
+      nrmtmax__ = Ptr{Cint}(C_NULL)
+   else
+      nrmtmax__ = Ref{Cint}(nrmtmax)
+   end
+
+   if isnothing(num_atoms)
+      num_atoms__ = Ptr{Cint}(C_NULL)
+   else
+      num_atoms__ = Ref{Cint}(num_atoms)
+   end
+
+   if isnothing(size_x)
+      size_x__ = Ptr{Cint}(C_NULL)
+   else
+      size_x__ = Ref{Cint}(size_x)
+   end
+
+   if isnothing(size_y)
+      size_y__ = Ptr{Cint}(C_NULL)
+   else
+      size_y__ = Ref{Cint}(size_y)
+   end
+
+   if isnothing(size_z)
+      size_z__ = Ptr{Cint}(C_NULL)
+   else
+      size_z__ = Ref{Cint}(size_z)
+   end
+
+   if isnothing(offset_z)
+      offset_z__ = Ptr{Cint}(C_NULL)
+   else
+      offset_z__ = Ref{Cint}(offset_z)
+   end
+
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_set_periodic_function(gs_handler.handler_ptr, label, f_mt, lmmax__, nrmtmax__, num_atoms__, f_rg, size_x__, size_y__, size_z__, offset_z__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.set_periodic_function failed with error code", error_code__[])
+   end
+
+end
+
+function get_periodic_function!(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=nothing, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
+
+   #input arguments (non-array)
+   if isnothing(lmmax)
+      lmmax__ = Ptr{Cint}(C_NULL)
+   else
+      lmmax__ = Ref{Cint}(lmmax)
+   end
+
+   if isnothing(nrmtmax)
+      nrmtmax__ = Ptr{Cint}(C_NULL)
+   else
+      nrmtmax__ = Ref{Cint}(nrmtmax)
+   end
+
+   if isnothing(num_atoms)
+      num_atoms__ = Ptr{Cint}(C_NULL)
+   else
+      num_atoms__ = Ref{Cint}(num_atoms)
+   end
+
+   if isnothing(size_x)
+      size_x__ = Ptr{Cint}(C_NULL)
+   else
+      size_x__ = Ref{Cint}(size_x)
+   end
+
+   if isnothing(size_y)
+      size_y__ = Ptr{Cint}(C_NULL)
+   else
+      size_y__ = Ref{Cint}(size_y)
+   end
+
+   if isnothing(size_z)
+      size_z__ = Ptr{Cint}(C_NULL)
+   else
+      size_z__ = Ref{Cint}(size_z)
+   end
+
+   if isnothing(offset_z)
+      offset_z__ = Ptr{Cint}(C_NULL)
+   else
+      offset_z__ = Ref{Cint}(offset_z)
+   end
+
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_periodic_function(gs_handler.handler_ptr, label, f_mt, lmmax__, nrmtmax__, num_atoms__, f_rg, size_x__, size_y__, size_z__, offset_z__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_periodic_function failed with error code", error_code__[])
+   end
+
+end
+
+function fft_transform(gs_handler, label, direction)
+
+   #input arguments (non-array)
+   direction__ = Ref{Cint}(direction)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_fft_transform(gs_handler.handler_ptr, label, direction__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.fft_transform failed with error code", error_code__[])
+   end
+
+end
+
+function diagonalize_hamiltonian(gs_handler, H0_handler, iter_solver_tol, max_steps)
+
+   #input arguments (non-array)
+   iter_solver_tol__ = Ref{Cdouble}(iter_solver_tol)
+   max_steps__ = Ref{Cint}(max_steps)
+
+   #output arguments (non-array)
+   converged__ = Ref{Bool}(0)
+   niter__ = Ref{Cint}(0)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_diagonalize_hamiltonian(gs_handler.handler_ptr, H0_handler.handler_ptr, iter_solver_tol__, max_steps__, converged__, niter__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.diagonalize_hamiltonian failed with error code", error_code__[])
+   end
+
+   return converged__[], niter__[]
+end
+
+function get_band_energies!(ks_handler, ik, ispn, band_energies)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   ispn__ = Ref{Cint}(ispn)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_band_energies(ks_handler.handler_ptr, ik__, ispn__, band_energies, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_band_energies failed with error code", error_code__[])
+   end
+
+end
+
+function get_psi!(ks_handler, ik, ispin, psi)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   ispin__ = Ref{Cint}(ispin)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_psi(ks_handler.handler_ptr, ik__, ispin__, psi, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_psi failed with error code", error_code__[])
+   end
+
+end
+
+function set_band_occupancies(ks_handler, ik, ispn, band_occupancies)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   ispn__ = Ref{Cint}(ispn)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_set_band_occupancies(ks_handler.handler_ptr, ik__, ispn__, band_occupancies, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.set_band_occupancies failed with error code", error_code__[])
+   end
+
+end
+
+function get_band_occupancies!(ks_handler, ik, ispn, band_occupancies)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   ispn__ = Ref{Cint}(ispn)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_band_occupancies(ks_handler.handler_ptr, ik__, ispn__, band_occupancies, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_band_occupancies failed with error code", error_code__[])
+   end
+
+end
+
+function generate_density(gs_handler; add_core=nothing, transform_to_rg=nothing, paw_only=nothing)
+
+   #input arguments (non-array)
+   if isnothing(add_core)
+      add_core__ = Ptr{Bool}(C_NULL)
+   else
+      add_core__ = Ref{Bool}(add_core)
+   end
+
+   if isnothing(transform_to_rg)
+      transform_to_rg__ = Ptr{Bool}(C_NULL)
+   else
+      transform_to_rg__ = Ref{Bool}(transform_to_rg)
+   end
+
+   if isnothing(paw_only)
+      paw_only__ = Ptr{Bool}(C_NULL)
+   else
+      paw_only__ = Ref{Bool}(paw_only)
+   end
+
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_generate_density(gs_handler.handler_ptr, add_core__, transform_to_rg__, paw_only__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.generate_density failed with error code", error_code__[])
+   end
+
+end
+
+function find_band_occupancies(ks_handler)
+
+   #input arguments (non-array)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_find_band_occupancies(ks_handler.handler_ptr, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.find_band_occupancies failed with error code", error_code__[])
+   end
+
+end
+
+function set_num_bands(ctx_handler, num_bands)
+
+   #input arguments (non-array)
+   num_bands__ = Ref{Cint}(num_bands)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_set_num_bands(ctx_handler.handler_ptr, num_bands__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.set_num_bands failed with error code", error_code__[])
+   end
+
+end
+
+function generate_initial_density(gs_handler)
+
+   #input arguments (non-array)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_generate_initial_density(gs_handler.handler_ptr, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.generate_initial_density failed with error code", error_code__[])
+   end
+
+end
+
+function get_gkvec!(ks_handler, ik, gvec)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_gkvec(ks_handler.handler_ptr, ik__, gvec, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_gkvec failed with error code", error_code__[])
    end
 
 end
