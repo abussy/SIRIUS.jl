@@ -3941,4 +3941,27 @@ function sirius_get_gkvec(ks_handler__, ik__, gvec__, error_code__)
     ccall((:sirius_get_gkvec, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}), ks_handler__, ik__, gvec__, error_code__)
 end
 
+"""
+    sirius_set_energy_fermi(ks_handler__, energy_fermi__, error_code__)
+
+sirius_set_energy_fermi:
+doc: Sets the SIRIUS Fermi energy.
+arguments:
+ks_handler:
+type: ks_handler
+attr: in, required
+doc: Handler for the k-point set.
+energy_fermi:
+type: double
+attr: in, required
+doc: Fermi energy to be set.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_energy_fermi(ks_handler__, energy_fermi__, error_code__)
+    ccall((:sirius_set_energy_fermi, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}), ks_handler__, energy_fermi__, error_code__)
+end
+
 end # module

@@ -2,6 +2,7 @@ module SIRIUS
 
 using MPI
 using SIRIUS_jll
+using JSON3
 
 export LibSirius
 include("LibSirius.jl")
@@ -69,6 +70,11 @@ function create_context_from_json(comm::MPI.Comm, fname)
       error("SIRIUS.create_context_from_json failed with error code", error_code__[])
    end
    return ctx
+end
+
+function create_context_from_dict(comm::MPI.Comm, dict)
+   json_string = JSON3.write(dict)
+   create_context_from_json(comm, json_string)
 end
 
 function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetry)

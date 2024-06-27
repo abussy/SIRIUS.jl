@@ -163,7 +163,10 @@ def gen_function_signature(fname, args):
 
         default = ""
         if is_opt(argspecs["attr"]):
-            default = "=nothing"
+            if is_array(argspecs["attr"]):
+                default = "=C_NULL"
+            else:
+                default = "=nothing"
 
         name = argname
         if is_handle(argspecs["type"]):

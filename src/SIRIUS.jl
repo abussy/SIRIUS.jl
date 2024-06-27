@@ -2,6 +2,7 @@ module SIRIUS
 
 using MPI
 using SIRIUS_jll
+using JSON3
 
 export LibSirius
 include("LibSirius.jl")
@@ -69,6 +70,11 @@ function create_context_from_json(comm::MPI.Comm, fname)
       error("SIRIUS.create_context_from_json failed with error code", error_code__[])
    end
    return ctx
+end
+
+function create_context_from_dict(comm::MPI.Comm, dict)
+   json_string = JSON3.write(dict)
+   create_context_from_json(comm, json_string)
 end
 
 function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetry)
@@ -348,7 +354,7 @@ function get_stress_tensor!(gs_handler, label, stress_tensor)
 
 end
 
-function initialize_kset(ks_handler; count=nothing)
+function initialize_kset(ks_handler; count=C_NULL)
 
    #input arguments (non-array)
 
@@ -362,7 +368,7 @@ function initialize_kset(ks_handler; count=nothing)
 
 end
 
-function set_periodic_function(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=nothing, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
+function set_periodic_function(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=C_NULL, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
 
    #input arguments (non-array)
    if isnothing(lmmax)
@@ -418,7 +424,7 @@ function set_periodic_function(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nr
 
 end
 
-function get_periodic_function!(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=nothing, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
+function get_periodic_function!(gs_handler, label; f_mt=C_NULL, lmmax=nothing, nrmtmax=nothing, num_atoms=nothing, f_rg=C_NULL, size_x=nothing, size_y=nothing, size_z=nothing, offset_z=nothing)
 
    #input arguments (non-array)
    if isnothing(lmmax)
@@ -658,6 +664,21 @@ function get_gkvec!(ks_handler, ik, gvec)
    LibSirius.sirius_get_gkvec(ks_handler.handler_ptr, ik__, gvec, error_code__)
    if error_code__[] != 0
       error("SIRIUS.get_gkvec failed with error code", error_code__[])
+   end
+
+end
+
+function set_energy_fermi(ks_handler, energy_fermi)
+
+   #input arguments (non-array)
+   energy_fermi__ = Ref{Cdouble}(energy_fermi)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_set_energy_fermi(ks_handler.handler_ptr, energy_fermi__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.set_energy_fermi failed with error code", error_code__[])
    end
 
 end
