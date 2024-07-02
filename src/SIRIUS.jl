@@ -683,5 +683,19 @@ function set_energy_fermi(ks_handler, energy_fermi)
 
 end
 
+function initialize_subspace(gs_handler, ks_handler)
+
+   #input arguments (non-array)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_initialize_subspace(gs_handler.handler_ptr, ks_handler.handler_ptr, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.initialize_subspace failed with error code", error_code__[])
+   end
+
+end
+
 
 end #SIRIUS module
