@@ -3727,11 +3727,11 @@ handler:
 type: ctx_handler
 attr: in, required
 doc: Simulation context handler.
-density_tol__:
+density_tol:
 type: double
 attr: out, required
 doc: Tolerance on RMS in density.
-energy_tol__:
+energy_tol:
 type: double
 attr: out, require
 doc: Tolerance in total energy difference.
@@ -3750,57 +3750,6 @@ doc: Error code.
 """
 function sirius_get_scf_params_from_ctx(handler__, density_tol__, energy_tol__, iter_solver_tol__, max_niter, error_code__)
     ccall((:sirius_get_scf_params_from_ctx, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), handler__, density_tol__, energy_tol__, iter_solver_tol__, max_niter, error_code__)
-end
-
-"""
-    sirius_get_nlcg_params_from_ctx(handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
-
-sirius_get_nlcg_params_from_ctx:
-doc: Get the NLCG parameters from the simulation context.
-arguments:
-handler:
-type: ctx_handler
-attr: in, required
-doc: Simulation context handler.
-temp__:
-type: double
-attr: out, required
-doc: Temperature in Kelvins for NLCG.
-smearing__:
-type: string
-attr: out, required
-doc: Smearing method for NLCG.
-kappa__:
-type: double
-attr: out, required
-doc: Kappa parameter for NLCG.
-tau__:
-type: double
-attr: out, required
-doc: Kappa parameter for NLCG.
-tol__:
-type: double
-attr: out, required
-doc: Convergence threshold for NLCG.
-maxiter__:
-type: int
-attr: out, required
-doc: Maximum number of SCF iterations.
-restart__:
-type: int
-attr: out, required
-doc: CG restart
-preocessing_unit__:
-type: string
-attr: out, required
-doc: CPU or GPU.
-error_code:
-type: int
-attr: out, optional
-doc: Error code.
-"""
-function sirius_get_nlcg_params_from_ctx(handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
-    ccall((:sirius_get_nlcg_params_from_ctx, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cchar}, Ptr{Cint}), handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
 end
 
 """

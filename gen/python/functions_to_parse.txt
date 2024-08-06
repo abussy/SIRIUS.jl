@@ -26,5 +26,4 @@ sirius_get_gkvec
 sirius_set_energy_fermi
 sirius_initialize_subspace
 sirius_set_atom_vector_field
-sirius_get_nlcg_params_from_ctx
 sirius_nlcg_params

@@ -227,18 +227,18 @@ function get_scf_params_from_ctx(ctx_handler)
    #input arguments (non-array)
 
    #output arguments (non-array)
-   density_tol____ = Ref{Cdouble}(0)
-   energy_tol____ = Ref{Cdouble}(0)
+   density_tol__ = Ref{Cdouble}(0)
+   energy_tol__ = Ref{Cdouble}(0)
    iter_solver_tol__ = Ref{Cdouble}(0)
    max_niter__ = Ref{Cint}(0)
 
    error_code__ = Ref{Cint}(0)
-   LibSirius.sirius_get_scf_params_from_ctx(ctx_handler.handler_ptr, density_tol____, energy_tol____, iter_solver_tol__, max_niter__, error_code__)
+   LibSirius.sirius_get_scf_params_from_ctx(ctx_handler.handler_ptr, density_tol__, energy_tol__, iter_solver_tol__, max_niter__, error_code__)
    if error_code__[] != 0
       error("SIRIUS.get_scf_params_from_ctx failed with error code", error_code__[])
    end
 
-   return density_tol____[], energy_tol____[], iter_solver_tol__[], max_niter__[]
+   return density_tol__[], energy_tol__[], iter_solver_tol__[], max_niter__[]
 end
 
 function find_ground_state(gs_handler; density_tol=nothing, energy_tol=nothing, iter_solver_tol=nothing, initial_guess=nothing, max_niter=nothing, save_state=nothing)
@@ -723,29 +723,6 @@ function set_atom_vector_field(ctx_handler, ia, vector_field)
       error("SIRIUS.set_atom_vector_field failed with error code", error_code__[])
    end
 
-end
-
-function get_nlcg_params_from_ctx(ctx_handler)
-
-   #input arguments (non-array)
-
-   #output arguments (non-array)
-   temp____ = Ref{Cdouble}(0)
-   smearing____ = Ref{Cchar}(0)
-   kappa____ = Ref{Cdouble}(0)
-   tau____ = Ref{Cdouble}(0)
-   tol____ = Ref{Cdouble}(0)
-   maxiter____ = Ref{Cint}(0)
-   restart____ = Ref{Cint}(0)
-   preocessing_unit____ = Ref{Cchar}(0)
-
-   error_code__ = Ref{Cint}(0)
-   LibSirius.sirius_get_nlcg_params_from_ctx(ctx_handler.handler_ptr, temp____, smearing__, kappa____, tau____, tol____, maxiter____, restart____, preocessing_unit__, error_code__)
-   if error_code__[] != 0
-      error("SIRIUS.get_nlcg_params_from_ctx failed with error code", error_code__[])
-   end
-
-   return temp____[], smearing____[], kappa____[], tau____[], tol____[], maxiter____[], restart____[], preocessing_unit____[]
 end
 
 function nlcg_params(gs_handler, ks_handler, temp, smearing, kappa, tau, tol, maxiter, restart, processing_unit)
