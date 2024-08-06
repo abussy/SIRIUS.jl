@@ -1,6 +1,7 @@
 module SIRIUS
 
 using MPI
+using MKL
 using SIRIUS_jll
 using JSON3
 
@@ -495,18 +496,30 @@ function fft_transform(gs_handler, label, direction)
 
 end
 
-function diagonalize_hamiltonian(gs_handler, H0_handler, iter_solver_tol, max_steps)
+function diagonalize_hamiltonian(ctx_handler, gs_handler, H0_handler, iter_solver_tol, max_steps; converge_by_energy=nothing, exact_diagonalization=nothing)
 
    #input arguments (non-array)
    iter_solver_tol__ = Ref{Cdouble}(iter_solver_tol)
    max_steps__ = Ref{Cint}(max_steps)
+   if isnothing(converge_by_energy)
+      converge_by_energy__ = Ptr{Cint}(C_NULL)
+   else
+      converge_by_energy__ = Ref{Cint}(converge_by_energy)
+   end
+
+   if isnothing(exact_diagonalization)
+      exact_diagonalization__ = Ptr{Bool}(C_NULL)
+   else
+      exact_diagonalization__ = Ref{Bool}(exact_diagonalization)
+   end
+
 
    #output arguments (non-array)
    converged__ = Ref{Bool}(0)
    niter__ = Ref{Cint}(0)
 
    error_code__ = Ref{Cint}(0)
-   LibSirius.sirius_diagonalize_hamiltonian(gs_handler.handler_ptr, H0_handler.handler_ptr, iter_solver_tol__, max_steps__, converged__, niter__, error_code__)
+   LibSirius.sirius_diagonalize_hamiltonian(ctx_handler.handler_ptr, gs_handler.handler_ptr, H0_handler.handler_ptr, iter_solver_tol__, max_steps__, converge_by_energy__, exact_diagonalization__, converged__, niter__, error_code__)
    if error_code__[] != 0
       error("SIRIUS.diagonalize_hamiltonian failed with error code", error_code__[])
    end
@@ -695,6 +708,66 @@ function initialize_subspace(gs_handler, ks_handler)
       error("SIRIUS.initialize_subspace failed with error code", error_code__[])
    end
 
+end
+
+function set_atom_vector_field(ctx_handler, ia, vector_field)
+
+   #input arguments (non-array)
+   ia__ = Ref{Cint}(ia)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_set_atom_vector_field(ctx_handler.handler_ptr, ia__, vector_field, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.set_atom_vector_field failed with error code", error_code__[])
+   end
+
+end
+
+function get_nlcg_params_from_ctx(ctx_handler)
+
+   #input arguments (non-array)
+
+   #output arguments (non-array)
+   temp____ = Ref{Cdouble}(0)
+   smearing____ = Ref{Cchar}(0)
+   kappa____ = Ref{Cdouble}(0)
+   tau____ = Ref{Cdouble}(0)
+   tol____ = Ref{Cdouble}(0)
+   maxiter____ = Ref{Cint}(0)
+   restart____ = Ref{Cint}(0)
+   preocessing_unit____ = Ref{Cchar}(0)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_get_nlcg_params_from_ctx(ctx_handler.handler_ptr, temp____, smearing__, kappa____, tau____, tol____, maxiter____, restart____, preocessing_unit__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.get_nlcg_params_from_ctx failed with error code", error_code__[])
+   end
+
+   return temp____[], smearing____[], kappa____[], tau____[], tol____[], maxiter____[], restart____[], preocessing_unit____[]
+end
+
+function nlcg_params(gs_handler, ks_handler, temp, smearing, kappa, tau, tol, maxiter, restart, processing_unit)
+
+   #input arguments (non-array)
+   temp__ = Ref{Cdouble}(temp)
+   kappa__ = Ref{Cdouble}(kappa)
+   tau__ = Ref{Cdouble}(tau)
+   tol__ = Ref{Cdouble}(tol)
+   maxiter__ = Ref{Cint}(maxiter)
+   restart__ = Ref{Cint}(restart)
+
+   #output arguments (non-array)
+   converged__ = Ref{Bool}(0)
+
+   error_code__ = Ref{Cint}(0)
+   LibSirius.sirius_nlcg_params(gs_handler.handler_ptr, ks_handler.handler_ptr, temp__, smearing, kappa__, tau__, tol__, maxiter__, restart__, processing_unit, converged__, error_code__)
+   if error_code__[] != 0
+      error("SIRIUS.nlcg_params failed with error code", error_code__[])
+   end
+
+   return converged__[]
 end
 
 

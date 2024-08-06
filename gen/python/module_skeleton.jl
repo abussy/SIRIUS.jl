@@ -1,6 +1,7 @@
 module SIRIUS
 
 using MPI
+using MKL
 using SIRIUS_jll
 using JSON3
 

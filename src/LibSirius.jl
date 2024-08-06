@@ -3753,6 +3753,57 @@ function sirius_get_scf_params_from_ctx(handler__, density_tol__, energy_tol__, 
 end
 
 """
+    sirius_get_nlcg_params_from_ctx(handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
+
+sirius_get_nlcg_params_from_ctx:
+doc: Get the NLCG parameters from the simulation context.
+arguments:
+handler:
+type: ctx_handler
+attr: in, required
+doc: Simulation context handler.
+temp__:
+type: double
+attr: out, required
+doc: Temperature in Kelvins for NLCG.
+smearing__:
+type: string
+attr: out, required
+doc: Smearing method for NLCG.
+kappa__:
+type: double
+attr: out, required
+doc: Kappa parameter for NLCG.
+tau__:
+type: double
+attr: out, required
+doc: Kappa parameter for NLCG.
+tol__:
+type: double
+attr: out, required
+doc: Convergence threshold for NLCG.
+maxiter__:
+type: int
+attr: out, required
+doc: Maximum number of SCF iterations.
+restart__:
+type: int
+attr: out, required
+doc: CG restart
+preocessing_unit__:
+type: string
+attr: out, required
+doc: CPU or GPU.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_get_nlcg_params_from_ctx(handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
+    ccall((:sirius_get_nlcg_params_from_ctx, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cchar}, Ptr{Cint}), handler__, temp__, smearing__, kappa__, tau__, tol__, maxiter__, restart__, processing_unit__, error_code__)
+end
+
+"""
     sirius_create_hamiltonian(gs_handler__, H0_handler__, error_code__)
 
 sirius_create_hamiltonian:
@@ -3776,11 +3827,15 @@ function sirius_create_hamiltonian(gs_handler__, H0_handler__, error_code__)
 end
 
 """
-    sirius_diagonalize_hamiltonian(gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converged__, niter__, error_code__)
+    sirius_diagonalize_hamiltonian(handler__, gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converge_by_energy__, exact_diagonalization__, converged__, niter__, error_code__)
 
 sirius_diagonalize_hamiltonian:
 doc: Diagonalizes the Hamiltonian.
 arguments:
+handler:
+type: ctx_handler
+attr: in, required
+doc: Simulation context handler.
 gs_handler:
 type: gs_handler
 attr: in, required
@@ -3797,6 +3852,14 @@ max_steps:
 type: int
 attr: in, required
 doc: Maximum number of steps for the iterative solver.
+converge_by_energy:
+type: int
+attr: in, optional
+doc: Whether the solver should determine convergence by checking the energy different (1), or the L2 norm of the residual (0). Default is value is 1.
+exact_diagonalization:
+type: bool
+attr: in, optional
+doc: Whether an exact diagonalization should take place (rather than iterative Davidson)
 converged:
 type: bool
 attr: out, required
@@ -3810,8 +3873,8 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_diagonalize_hamiltonian(gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converged__, niter__, error_code__)
-    ccall((:sirius_diagonalize_hamiltonian, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Bool}, Ptr{Cint}, Ptr{Cint}), gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converged__, niter__, error_code__)
+function sirius_diagonalize_hamiltonian(handler__, gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converge_by_energy__, exact_diagonalization__, converged__, niter__, error_code__)
+    ccall((:sirius_diagonalize_hamiltonian, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Bool}, Ptr{Bool}, Ptr{Cint}, Ptr{Cint}), handler__, gs_handler__, H0_handler__, iter_solver_tol__, max_steps__, converge_by_energy__, exact_diagonalization__, converged__, niter__, error_code__)
 end
 
 """
@@ -3962,6 +4025,33 @@ doc: Error code.
 """
 function sirius_set_energy_fermi(ks_handler__, energy_fermi__, error_code__)
     ccall((:sirius_set_energy_fermi, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cint}), ks_handler__, energy_fermi__, error_code__)
+end
+
+"""
+    sirius_set_atom_vector_field(handler__, ia__, vector_field__, error_code__)
+
+sirius_set_atom_vector_field:
+doc: Set new atomic vector field (aka initial magnetization).
+arguments:
+handler:
+type: ctx_handler
+attr: in, required
+doc: Simulation context handler.
+ia:
+type: int
+attr: in, required
+doc: Index of atom; index starts form 1
+vector_field:
+type: double
+attr: in, required, dimension(3)
+doc: Atom vector field.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_atom_vector_field(handler__, ia__, vector_field__, error_code__)
+    ccall((:sirius_set_atom_vector_field, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}), handler__, ia__, vector_field__, error_code__)
 end
 
 end # module
