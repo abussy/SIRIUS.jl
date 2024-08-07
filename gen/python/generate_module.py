@@ -107,7 +107,9 @@ def gen_function_call(fname, args, prefix):
 
     call = "\n"+prefix+"error_code__ = Ref{Cint}(0)\n"
 
-    call += prefix+"LibSirius."+fname+"("
+    call += prefix+"redirect_stdio(;stdout=get_outstream()) do\n"
+
+    call += 2*prefix+"LibSirius."+fname+"("
     for argname, argspecs in args.items():
         if is_handle(argspecs["type"]):
             call += argspecs["type"]+".handler_ptr, "
@@ -119,6 +121,9 @@ def gen_function_call(fname, args, prefix):
             call += argname+"__, "
 
     call += "error_code__)\n"
+
+    call += 2*prefix+"Base.Libc.flush_cstdio()\n"
+    call += prefix+"end\n"
 
     call += prefix+'if error_code__[] != 0\n'
     call += prefix+'   error("SIRIUS.{} failed with error code", error_code__[])\n'.format(fname.replace("sirius_", ""))

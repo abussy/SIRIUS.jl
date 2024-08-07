@@ -3727,11 +3727,11 @@ handler:
 type: ctx_handler
 attr: in, required
 doc: Simulation context handler.
-density_tol:
+density_tol__:
 type: double
 attr: out, required
 doc: Tolerance on RMS in density.
-energy_tol:
+energy_tol__:
 type: double
 attr: out, require
 doc: Tolerance in total energy difference.
