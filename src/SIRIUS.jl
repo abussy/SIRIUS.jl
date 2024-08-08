@@ -53,7 +53,7 @@ end
 
 function free_ground_state_handler!(gs::GroundStateHandler)
    error_code__ = Ref{Cint}(0)
-   redirect_stdio(;stdout=getoutstream()) do
+   redirect_stdio(;stdout=get_outstream()) do
       LibSirius.sirius_free_object_handler(gs.handler_ptr, error_code__)
       Base.Libc.flush_cstdio()
    end
