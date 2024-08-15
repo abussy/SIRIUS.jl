@@ -7,7 +7,6 @@ version = "1.0.0-DEV"
 MKL = "33e6dc65-8f57-5167-99aa-e5a354878fb2"
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-nlcg_jll = "782cc49c-e073-530d-b5fe-579a70b042cc"
 SIRIUS_jll = "6b659922-2939-5935-a7a2-1bdd48c7820f"
 
 [compat]
