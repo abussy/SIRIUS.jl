@@ -4,6 +4,7 @@ using MPI
 using MKL
 using SIRIUS_jll
 using JSON3
+using Libdl
 
 export LibSirius
 include("LibSirius.jl")
@@ -85,7 +86,16 @@ function free_hamiltonian_handler!(H0::HamiltonianHandler)
 end
 
 ### Utility function that maps an integer to a C MPI_comm
-comm2f(comm::MPI.Comm) = ccall((:MPI_Comm_c2f, MPI.libmpi), Cint, (MPI.MPI_Comm,), comm)
+function comm2f(comm::MPI.Comm)
+   # Some MPI libraries (cray-mpich) do not define MPI_Comm_c2f, in this case
+   # the C MPI communicator is just an integer in the first place
+   handle = Libdl.dlopen(MPI.libmpi)
+   if isnothing(Libdl.dlsym(handle, :MPI_Comm_c2f; throw_error = false))
+      comm.val
+   else
+      ccall((:MPI_Comm_c2f, MPI.libmpi), Cint, (MPI.MPI_Comm,), comm)
+   end
+end
 
 ### Hard coded handler creation
 function create_context_from_json(comm::MPI.Comm, fname)
