@@ -1,12 +1,9 @@
 @testitem "Testing SIRIUS SCF #3:" begin 
    using MPI
-   using MKL
    using SIRIUS
    
    include("../test_utils.jl")
 
-   cd("test3")
-   
    MPI.Init()
    comm = MPI.COMM_WORLD
    
@@ -35,6 +32,7 @@
       energy = SIRIUS.get_energy(gs, "total")
       ref_energy = get_ref_energy("output_ref.json", "total")
       ediff = abs(energy-ref_energy)
+      @show ediff < 1.0e-8
       @test ediff < 1.0e-8
    end
    
@@ -42,8 +40,8 @@
    SIRIUS.free_ground_state_handler!(gs)
    SIRIUS.free_kpoint_set_handler!(kps)
    SIRIUS.free_context_handler!(ctx)
-   #SIRIUS.finalize(call_mpi_fin=false)
-   #MPI.Finalize()
 
-   cd("..")
+   # Last test
+   SIRIUS.finalize(call_mpi_fin=false)
+   MPI.Finalize()
 end

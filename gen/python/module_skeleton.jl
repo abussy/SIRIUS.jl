@@ -1,7 +1,7 @@
 module SIRIUS
 
 using MPI
-using MKL
+using OpenBLAS32
 using SIRIUS_jll
 using JSON3
 using Libdl
