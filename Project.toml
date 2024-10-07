@@ -1,7 +1,7 @@
 name = "SIRIUS"
 uuid = "3581e6f0-5a2a-4fbf-9499-336905df69aa"
 authors = ["Augustin Bussy"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [deps]
 OpenBLAS32 = "51095b67-9e93-468d-a683-508b52f74e81"
