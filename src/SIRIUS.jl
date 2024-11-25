@@ -9,6 +9,12 @@ using Libdl
 export LibSirius
 include("LibSirius.jl")
 
+### Test on OMP_NUM_THREADS, if not set, bad performance is expected from SIRIUS
+num_threads = get(ENV, "OMP_NUM_THREADS", "not_set")
+if num_threads == "not_set"
+    @warn("You should set OMP_NUM_THREADS for optimal SIRIUS performance")
+end
+
 ### Users can silence SIRIUS stdout output by calling SIRIUS.output_mode(true)
 const silent = Ref(false)
 function output_mode(;make_silent=true)
