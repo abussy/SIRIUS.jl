@@ -16,6 +16,7 @@ sirius_fft_transform
 sirius_diagonalize_hamiltonian
 sirius_get_band_energies
 sirius_get_psi
+sirius_set_band_energies
 sirius_set_band_occupancies
 sirius_get_band_occupancies
 sirius_generate_density
@@ -27,3 +28,4 @@ sirius_set_energy_fermi
 sirius_initialize_subspace
 sirius_set_atom_vector_field
 sirius_nlcg_params
+sirius_apply_h

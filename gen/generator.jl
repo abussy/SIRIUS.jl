@@ -5,7 +5,8 @@ using PyCall
 ### Automatically generate the Julia wrappers for SIRIUS in LibSirius.jl
 cd(@__DIR__)
 
-include_dir = normpath(SIRIUS_jll.artifact_dir, "include/sirius/src/api")
+#include_dir = normpath(SIRIUS_jll.artifact_dir, "include/sirius/src/api")
+include_dir = "/home/bussya/Documents/git/SIRIUS/src/api"
 
 # wrapper generator options
 options = load_options(joinpath(@__DIR__, "generator.toml"))

@@ -1586,6 +1586,37 @@ function sirius_set_band_occupancies(ks_handler__, ik__, ispn__, band_occupancie
 end
 
 """
+    sirius_set_band_energies(ks_handler__, ik__, ispn__, band_energies__, error_code__)
+
+sirius_set_band_energies:
+doc: Set band energies.
+arguments:
+ks_handler:
+type: ks_handler
+attr: in, required
+doc: K-point set handler.
+ik:
+type: int
+attr: in, required
+doc: Global index of k-point.
+ispn:
+type: int
+attr: in, required
+doc: Spin component index.
+band_energies:
+type: double
+attr: in, required, dimension(:)
+doc: Array of band energies.
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_band_energies(ks_handler__, ik__, ispn__, band_energies__, error_code__)
+    ccall((:sirius_set_band_energies, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}), ks_handler__, ik__, ispn__, band_energies__, error_code__)
+end
+
+"""
     sirius_get_band_occupancies(ks_handler__, ik__, ispn__, band_occupancies__, error_code__)
 
 sirius_get_band_occupancies:
@@ -3448,22 +3479,26 @@ function sirius_load_state(gs_handler__, file_name__, error_code__)
 end
 
 """
-    sirius_set_density_matrix(gs_handler__, ia__, dm__, ld__, error_code__)
+    sirius_access_density_matrix(gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
 
-sirius_set_density_matrix:
-doc: Set density matrix.
+sirius_access_density_matrix:
+doc: Access (get or set) density matrix.
 arguments:
 gs_handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 ia:
 type: int
 attr: in, required
 doc: Index of atom.
 dm:
 type: complex
-attr: in, required, dimension(ld, ld, 3)
+attr: inout, required, dimension(ld, ld, 3)
 doc: Input density matrix.
 ld:
 type: int
@@ -3474,20 +3509,24 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_density_matrix(gs_handler__, ia__, dm__, ld__, error_code__)
-    ccall((:sirius_set_density_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), gs_handler__, ia__, dm__, ld__, error_code__)
+function sirius_access_density_matrix(gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
+    ccall((:sirius_access_density_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
 end
 
 """
-    sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+    sirius_access_local_occupation_matrix(handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
 
-sirius_set_local_occupation_matrix:
-doc: Set local occupation matrix of LDA+U+V method.
+sirius_access_local_occupation_matrix:
+doc: Access (get or set) local occupation matrix of LDA+U+V method.
 arguments:
 handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 ia:
 type: int
 attr: in, required
@@ -3506,7 +3545,7 @@ attr: in, required
 doc: Spin index.
 occ_mtrx:
 type: complex
-attr: in, required, dimension(ld, ld)
+attr: inout, required, dimension(ld, ld)
 doc: Local occupation matrix.
 ld:
 type: int
@@ -3517,20 +3556,24 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
-    ccall((:sirius_set_local_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+function sirius_access_local_occupation_matrix(handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+    ccall((:sirius_access_local_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
 end
 
 """
-    sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+    sirius_access_nonlocal_occupation_matrix(handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
 
-sirius_set_nonlocal_occupation_matrix:
-doc: Set nonlocal part of LDA+U+V occupation matrix.
+sirius_access_nonlocal_occupation_matrix:
+doc: Access (get or set) nonlocal part of LDA+U+V occupation matrix.
 arguments:
 handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 atom_pair:
 type: int
 attr: in, required, dimension(2)
@@ -3553,7 +3596,7 @@ attr: in, required, dimension(3)
 doc: Translation vector that connects two atoms.
 occ_mtrx:
 type: complex
-attr: in, required, dimension(ld1, ld2)
+attr: inout, required, dimension(ld1, ld2)
 doc: Nonlocal occupation matrix.
 ld1:
 type: int
@@ -3568,8 +3611,8 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
-    ccall((:sirius_set_nonlocal_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+function sirius_access_nonlocal_occupation_matrix(handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+    ccall((:sirius_access_nonlocal_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
 end
 
 """
@@ -3733,7 +3776,7 @@ attr: out, required
 doc: Tolerance on RMS in density.
 energy_tol__:
 type: double
-attr: out, require
+attr: out, required
 doc: Tolerance in total energy difference.
 iter_solver_tol:
 type: double
@@ -4001,6 +4044,141 @@ doc: Error code.
 """
 function sirius_set_atom_vector_field(handler__, ia__, vector_field__, error_code__)
     ccall((:sirius_set_atom_vector_field, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}), handler__, ia__, vector_field__, error_code__)
+end
+
+"""
+    sirius_apply_h(ks_handler__, H0_handler__, ik__, nbands__, phi__, hphi__, error_code__)
+
+sirius_apply_h:
+doc: Apply the k-point specfific Hamiltonian Hk to the wave functions
+arguments:
+ks_handler:
+type: ks_handler
+attr: in, required
+doc: Handler for the k-point set.  
+H0_handler:
+type: H0_handler
+attr: in, required
+doc: Hamiltonian handler.
+ik:
+type: int
+attr: in, required
+doc: Index of the k-point.
+nbands:
+type: int
+attr: in, required
+doc: number of bands considered
+phi:
+type: complex
+attr: in, required, dimension(:)
+doc: Pointer to the wave function coefficients.
+hpsi:
+type: complex
+attr: inout, required, dimension(:)
+doc: Pointer to the H x phi product
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_apply_h(ks_handler__, H0_handler__, ik__, nbands__, phi__, hphi__, error_code__)
+    ccall((:sirius_apply_h, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{ComplexF32}, Ptr{Cint}), ks_handler__, H0_handler__, ik__, nbands__, phi__, hphi__, error_code__)
+end
+
+"""
+    sirius_create_wave_function(ks_handler__, wf_handler__, ik__, nbands__, error_code__)
+
+sirius_create_wave_function:
+doc: Creates a Sirius wave function object for a given k-point and number of bands.
+arguments:
+ks_handler:
+type: ks_handler
+attr: in, required
+doc: Handler for the k-point set.  
+wf_handler:
+type: wf_handler
+attr: out, required
+doc: The new handler for the wave function.
+ik:
+type: int
+attr: in, required
+doc: Index of the k-point.
+nbands:
+type: int
+attr: in, required
+doc: number of bands considered
+
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_create_wave_function(ks_handler__, wf_handler__, ik__, nbands__, error_code__)
+    ccall((:sirius_create_wave_function, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), ks_handler__, wf_handler__, ik__, nbands__, error_code__)
+end
+
+"""
+    sirius_set_wave_function(wf_handler__, phi__, ngk__, nbands__, error_code__)
+
+sirius_set_wave_function:
+doc: Set the wave function coefficients for the first nbands of ngk elements.
+arguments:
+wf_handler:
+type: wf_handler
+attr: in, required
+doc: The handler of the wave function to set.
+phi:
+type: complex
+attr: in, required, dimension(:)
+doc: Pointer to the wave function coefficients to copy.
+ngk:
+type: int
+attr: in, required
+doc: number of G+k vectors.
+nbands:
+type: int
+attr: in, required
+doc: number of bands considered
+
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_set_wave_function(wf_handler__, phi__, ngk__, nbands__, error_code__)
+    ccall((:sirius_set_wave_function, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), wf_handler__, phi__, ngk__, nbands__, error_code__)
+end
+
+"""
+    sirius_get_wave_function(wf_handler__, phi__, ngk__, nbands__, error_code__)
+
+sirius_get_wave_function:
+doc: Get the wave function coefficients for the first nbands of ngk elements.
+arguments:
+wf_handler:
+type: wf_handler
+attr: in, required
+doc: The handler of the wave function to set.
+phi:
+type: complex
+attr: inout, required, dimension(:)
+doc: Pointer to the wave function coefficients to copy into.
+ngk:
+type: int
+attr: in, required
+doc: number of G+k vectors.
+nbands:
+type: int
+attr: in, required
+doc: number of bands considered
+
+error_code:
+type: int
+attr: out, optional
+doc: Error code.
+"""
+function sirius_get_wave_function(wf_handler__, phi__, ngk__, nbands__, error_code__)
+    ccall((:sirius_get_wave_function, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), wf_handler__, phi__, ngk__, nbands__, error_code__)
 end
 
 end # module

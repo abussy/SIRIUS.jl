@@ -663,6 +663,25 @@ function get_psi!(ks_handler, ik, ispin, psi)
 
 end
 
+function set_band_energies(ks_handler, ik, ispn, band_energies)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   ispn__ = Ref{Cint}(ispn)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   redirect_stdio(;stdout=get_outstream()) do
+      LibSirius.sirius_set_band_energies(ks_handler.handler_ptr, ik__, ispn__, band_energies, error_code__)
+      Base.Libc.flush_cstdio()
+   end
+   if error_code__[] != 0
+      error("SIRIUS.set_band_energies failed with error code", error_code__[])
+   end
+
+end
+
 function set_band_occupancies(ks_handler, ik, ispn, band_occupancies)
 
    #input arguments (non-array)
@@ -882,6 +901,25 @@ function nlcg_params(gs_handler, ks_handler, temp, smearing, kappa, tau, tol, ma
    end
 
    return converged__[]
+end
+
+function apply_h(ks_handler, H0_handler, ik, nbands, phi, hpsi)
+
+   #input arguments (non-array)
+   ik__ = Ref{Cint}(ik)
+   nbands__ = Ref{Cint}(nbands)
+
+   #output arguments (non-array)
+
+   error_code__ = Ref{Cint}(0)
+   redirect_stdio(;stdout=get_outstream()) do
+      LibSirius.sirius_apply_h(ks_handler.handler_ptr, H0_handler.handler_ptr, ik__, nbands__, phi, hpsi, error_code__)
+      Base.Libc.flush_cstdio()
+   end
+   if error_code__[] != 0
+      error("SIRIUS.apply_h failed with error code", error_code__[])
+   end
+
 end
 
 
