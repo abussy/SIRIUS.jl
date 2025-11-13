@@ -41,7 +41,7 @@
    SIRIUS.free_kpoint_set_handler!(kps)
    SIRIUS.free_context_handler!(ctx)
 
-   # Last test
-   SIRIUS.finalize(call_mpi_fin=false)
-   MPI.Finalize()
+   # Do not finalize here as tests can run in any order
+   #SIRIUS.finalize(call_mpi_fin=false)
+   #MPI.Finalize()
 end

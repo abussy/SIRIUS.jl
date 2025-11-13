@@ -1190,7 +1190,7 @@ attr: in, required
 doc: Hubbard U parameter.
 J:
 type: double
-attr: in, required
+attr: in, required, dimension(3)
 doc: Exchange J parameter for the full interaction treatment.
 alpha:
 type: double
@@ -3448,22 +3448,26 @@ function sirius_load_state(gs_handler__, file_name__, error_code__)
 end
 
 """
-    sirius_set_density_matrix(gs_handler__, ia__, dm__, ld__, error_code__)
+    sirius_access_density_matrix(gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
 
-sirius_set_density_matrix:
-doc: Set density matrix.
+sirius_access_density_matrix:
+doc: Access (get or set) density matrix.
 arguments:
 gs_handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 ia:
 type: int
 attr: in, required
 doc: Index of atom.
 dm:
 type: complex
-attr: in, required, dimension(ld, ld, 3)
+attr: inout, required, dimension(ld, ld, 3)
 doc: Input density matrix.
 ld:
 type: int
@@ -3474,20 +3478,24 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_density_matrix(gs_handler__, ia__, dm__, ld__, error_code__)
-    ccall((:sirius_set_density_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), gs_handler__, ia__, dm__, ld__, error_code__)
+function sirius_access_density_matrix(gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
+    ccall((:sirius_access_density_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), gs_handler__, access_type__, ia__, dm__, ld__, error_code__)
 end
 
 """
-    sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+    sirius_access_local_occupation_matrix(handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
 
-sirius_set_local_occupation_matrix:
-doc: Set local occupation matrix of LDA+U+V method.
+sirius_access_local_occupation_matrix:
+doc: Access (get or set) local occupation matrix of LDA+U+V method.
 arguments:
 handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 ia:
 type: int
 attr: in, required
@@ -3506,7 +3514,7 @@ attr: in, required
 doc: Spin index.
 occ_mtrx:
 type: complex
-attr: in, required, dimension(ld, ld)
+attr: inout, required, dimension(ld, ld)
 doc: Local occupation matrix.
 ld:
 type: int
@@ -3517,20 +3525,24 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_local_occupation_matrix(handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
-    ccall((:sirius_set_local_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), handler__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+function sirius_access_local_occupation_matrix(handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
+    ccall((:sirius_access_local_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}), handler__, access_type__, ia__, n__, l__, spin__, occ_mtrx__, ld__, error_code__)
 end
 
 """
-    sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+    sirius_access_nonlocal_occupation_matrix(handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
 
-sirius_set_nonlocal_occupation_matrix:
-doc: Set nonlocal part of LDA+U+V occupation matrix.
+sirius_access_nonlocal_occupation_matrix:
+doc: Access (get or set) nonlocal part of LDA+U+V occupation matrix.
 arguments:
 handler:
 type: gs_handler
 attr: in, required
 doc: Ground-state handler.
+access_type:
+type: string
+attr: in, required
+doc: Access type ("get" or "set").
 atom_pair:
 type: int
 attr: in, required, dimension(2)
@@ -3553,7 +3565,7 @@ attr: in, required, dimension(3)
 doc: Translation vector that connects two atoms.
 occ_mtrx:
 type: complex
-attr: in, required, dimension(ld1, ld2)
+attr: inout, required, dimension(ld1, ld2)
 doc: Nonlocal occupation matrix.
 ld1:
 type: int
@@ -3568,8 +3580,8 @@ type: int
 attr: out, optional
 doc: Error code.
 """
-function sirius_set_nonlocal_occupation_matrix(handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
-    ccall((:sirius_set_nonlocal_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), handler__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+function sirius_access_nonlocal_occupation_matrix(handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
+    ccall((:sirius_access_nonlocal_occupation_matrix, libsirius), Cvoid, (Ptr{Ptr{Cvoid}}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{ComplexF32}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), handler__, access_type__, atom_pair__, n__, l__, spin__, T__, occ_mtrx__, ld1__, ld2__, error_code__)
 end
 
 """
@@ -3733,7 +3745,7 @@ attr: out, required
 doc: Tolerance on RMS in density.
 energy_tol__:
 type: double
-attr: out, require
+attr: out, required
 doc: Tolerance in total energy difference.
 iter_solver_tol:
 type: double
