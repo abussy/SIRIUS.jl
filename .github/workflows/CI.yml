@@ -43,7 +43,7 @@ jobs:
       GKS_ENCODING: utf8
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Julia stable
         uses: julia-actions/setup-julia@v2
