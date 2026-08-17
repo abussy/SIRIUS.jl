@@ -112,11 +112,6 @@ function create_context_from_json(comm::MPI.Comm, fname)
    return ctx
 end
 
-function create_context_from_dict(comm::MPI.Comm, dict)
-   json_string = JSON3.write(dict)
-   create_context_from_json(comm, json_string)
-end
-
 function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetry)
    kps = KpointSetHandler(C_NULL)
    error_code__ = Ref{Cint}(0)
@@ -132,26 +127,6 @@ function create_kset_from_grid(ctx::ContextHandler; k_grid, k_shift, use_symmetr
    return kps
 end
 
-function create_kset(ctx::ContextHandler; num_kp, k_coords, k_weights, init_kset=true)
-   kps = KpointSetHandler(C_NULL)
-   num_kpoints__ = Ref{Cint}(num_kp)
-   kpoints__ = Vector{Cdouble}(undef, 3*num_kp)
-   for (ikp, k_coord) in enumerate(k_coords)
-      kpoints__[3*(ikp-1)+1:3*ikp] = k_coord[:]
-   end
-   init_kset__::Ref{Bool} = init_kset
-   error_code__ = Ref{Cint}(0)      
-   redirect_stdio(;stdout=get_outstream()) do
-      LibSirius.sirius_create_kset(ctx.handler_ptr, num_kpoints__, kpoints__, k_weights, init_kset__,
-                                   kps.handler_ptr, error_code__)
-      Base.Libc.flush_cstdio()
-   end
-   if error_code__[] != 0
-      error("SIRIUS.create_kset failed with error code", error_code__[])
-   end
-   return kps
-end
-
 function create_ground_state(kps::KpointSetHandler)
    gs = GroundStateHandler(C_NULL)
    error_code__ = Ref{Cint}(0)
@@ -163,19 +138,6 @@ function create_ground_state(kps::KpointSetHandler)
       error("SIRIUS.create_ground_state failed with error code", error_code__[])
    end
    return gs
-end
-
-function create_hamiltonian(gs::GroundStateHandler)
-   H0 = HamiltonianHandler(C_NULL)
-   error_code__ = Ref{Cint}(0)
-   redirect_stdio(;stdout=get_outstream()) do
-      LibSirius.sirius_create_hamiltonian(gs.handler_ptr, H0.handler_ptr, error_code__)
-      Base.Libc.flush_cstdio()
-   end
-   if error_code__[] != 0
-      error("SIRIUS.create_hamiltonian failed with error code", error_code__[])
-   end
-   return H0
 end
 
 ### Generated wrapper code around LibSirius
